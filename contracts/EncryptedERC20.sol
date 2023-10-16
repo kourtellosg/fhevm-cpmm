@@ -7,41 +7,43 @@ import "fhevm/abstracts/EIP712WithModifier.sol";
 import "fhevm/lib/TFHE.sol";
 
 contract EncryptedERC20 is EIP712WithModifier {
-    euint32 private totalSupply;
-    string public constant name = "Naraggara"; // City of Zama's battle
-    string public constant symbol = "NARA";
+    euint16 private totalSupply;
+    string public name;
+    string public symbol;
     uint8 public constant decimals = 18;
 
     // used for output authorization
     bytes32 private DOMAIN_SEPARATOR;
 
     // A mapping from address to an encrypted balance.
-    mapping(address => euint32) internal balances;
+    mapping(address => euint16) internal balances;
 
     // A mapping of the form mapping(owner => mapping(spender => allowance)).
-    mapping(address => mapping(address => euint32)) internal allowances;
+    mapping(address => mapping(address => euint16)) internal allowances;
 
     // The owner of the contract.
     address public contractOwner;
 
-    constructor() EIP712WithModifier("Authorization token", "1") {
+    constructor(string memory _name, string memory _symbol) EIP712WithModifier("Authorization token", "1") {
+        name = _name;
+        symbol = _symbol;
         contractOwner = msg.sender;
     }
 
     // Sets the balance of the owner to the given encrypted balance.
     function mint(bytes calldata encryptedAmount) public onlyContractOwner {
-        euint32 amount = TFHE.asEuint32(encryptedAmount);
+        euint16 amount = TFHE.asEuint16(encryptedAmount);
         balances[contractOwner] = balances[contractOwner] + amount;
         totalSupply = totalSupply + amount;
     }
 
     // Transfers an encrypted amount from the message sender address to the `to` address.
     function transfer(address to, bytes calldata encryptedAmount) public {
-        transfer(to, TFHE.asEuint32(encryptedAmount));
+        transfer(to, TFHE.asEuint16(encryptedAmount));
     }
 
     // Transfers an amount from the message sender address to the `to` address.
-    function transfer(address to, euint32 amount) public {
+    function transfer(address to, euint16 amount) public {
         _transfer(msg.sender, to, amount);
     }
 
@@ -60,10 +62,15 @@ contract EncryptedERC20 is EIP712WithModifier {
         return TFHE.reencrypt(balances[msg.sender], publicKey, 0);
     }
 
+    function balanceOf(address contractAddress) public view returns (euint16) {
+        // TODO: Add check that the contract address is indeed a contract...
+        return balances[contractAddress];
+    }
+
     // Sets the `encryptedAmount` as the allowance of `spender` over the caller's tokens.
     function approve(address spender, bytes calldata encryptedAmount) public {
         address owner = msg.sender;
-        _approve(owner, spender, TFHE.asEuint32(encryptedAmount));
+        _approve(owner, spender, TFHE.asEuint16(encryptedAmount));
     }
 
     // Returns the remaining number of tokens that `spender` is allowed to spend
@@ -80,36 +87,36 @@ contract EncryptedERC20 is EIP712WithModifier {
 
     // Transfers `encryptedAmount` tokens using the caller's allowance.
     function transferFrom(address from, address to, bytes calldata encryptedAmount) public {
-        transferFrom(from, to, TFHE.asEuint32(encryptedAmount));
+        transferFrom(from, to, TFHE.asEuint16(encryptedAmount));
     }
 
     // Transfers `amount` tokens using the caller's allowance.
-    function transferFrom(address from, address to, euint32 amount) public {
+    function transferFrom(address from, address to, euint16 amount) public {
         address spender = msg.sender;
         _updateAllowance(from, spender, amount);
         _transfer(from, to, amount);
     }
 
-    function _approve(address owner, address spender, euint32 amount) internal {
+    function _approve(address owner, address spender, euint16 amount) internal {
         allowances[owner][spender] = amount;
     }
 
-    function _allowance(address owner, address spender) internal view returns (euint32) {
+    function _allowance(address owner, address spender) internal view returns (euint16) {
         if (TFHE.isInitialized(allowances[owner][spender])) {
             return allowances[owner][spender];
         } else {
-            return TFHE.asEuint32(0);
+            return TFHE.asEuint16(0);
         }
     }
 
-    function _updateAllowance(address owner, address spender, euint32 amount) internal {
-        euint32 currentAllowance = _allowance(owner, spender);
+    function _updateAllowance(address owner, address spender, euint16 amount) internal {
+        euint16 currentAllowance = _allowance(owner, spender);
         require(TFHE.decrypt(TFHE.le(amount, currentAllowance)));
         _approve(owner, spender, currentAllowance - amount);
     }
 
     // Transfers an encrypted amount.
-    function _transfer(address from, address to, euint32 amount) internal {
+    function _transfer(address from, address to, euint16 amount) internal {
         // Make sure the sender has enough tokens.
         require(TFHE.decrypt(TFHE.le(amount, balances[from])));
 

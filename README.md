@@ -1,4 +1,4 @@
-# Hardhat Template [![Open in Gitpod][gitpod-badge]][gitpod] [![Github Actions][gha-badge]][gha] [![Hardhat][hardhat-badge]][hardhat] [![License: MIT][license-badge]][license]
+# FHEVM Constant Product Market Maker Smart Contract [![Open in Gitpod][gitpod-badge]][gitpod] [![Github Actions][gha-badge]][gha] [![Hardhat][hardhat-badge]][hardhat] [![License: MIT][license-badge]][license]
 
 [gitpod]: https://gitpod.io/#https://github.com/zama-ai/fhevm-hardhat-template
 [gitpod-badge]: https://img.shields.io/badge/Gitpod-Open%20in%20Gitpod-FFB45B?logo=gitpod
@@ -9,7 +9,11 @@
 [license]: https://opensource.org/licenses/MIT
 [license-badge]: https://img.shields.io/badge/License-MIT-blue.svg
 
-A Hardhat-based template for developing Solidity smart contracts, with sensible defaults.
+## Features
+
+This repo was developed on top of the template provided by [Zama](https://github.com/zama-ai/fhevm-hardhat-template)
+which builds upon the frameworks and libraries mentioned below, so for details about their specific features, please
+consult their respective documentations.
 
 - [Hardhat](https://github.com/nomiclabs/hardhat): compile, run and test smart contracts
 - [TypeChain](https://github.com/ethereum-ts/TypeChain): generate TypeScript bindings for smart contracts
@@ -18,19 +22,9 @@ A Hardhat-based template for developing Solidity smart contracts, with sensible 
 - [Solcover](https://github.com/sc-forks/solidity-coverage): code coverage
 - [Prettier Plugin Solidity](https://github.com/prettier-solidity/prettier-plugin-solidity): code formatter
 
-## Getting Started
-
-Click the [`Use this template`](https://github.com/zama-ai/fhevm-hardhat-template/generate) button at the top of the
-page to create a new repository with this repo as the initial state.
-
-## Features
-
-This template builds upon the frameworks and libraries mentioned above, so for details about their specific features,
-please consult their respective documentations.
-
-For example, for Hardhat, you can refer to the [Hardhat Tutorial](https://hardhat.org/tutorial) and the
-[Hardhat Docs](https://hardhat.org/docs). You might be in particular interested in reading the
-[Testing Contracts](https://hardhat.org/tutorial/testing-contracts) section.
+> For example, for Hardhat, you can refer to the [Hardhat Tutorial](https://hardhat.org/tutorial) and the
+> [Hardhat Docs](https://hardhat.org/docs). You might be in particular interested in reading the
+> [Testing Contracts](https://hardhat.org/tutorial/testing-contracts) section.
 
 ### Sensible Defaults
 

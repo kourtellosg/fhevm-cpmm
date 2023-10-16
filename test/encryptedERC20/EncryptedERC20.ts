@@ -19,7 +19,7 @@ describe("EncryptedERC20", function () {
   });
 
   it("should mint the contract", async function () {
-    const encryptedAmount = this.instances.alice.encrypt32(1000);
+    const encryptedAmount = this.instances.alice.encrypt16(1000);
     const transaction = await createTransaction(this.erc20.mint, encryptedAmount);
     await transaction.wait();
     // Call the method
@@ -27,7 +27,7 @@ describe("EncryptedERC20", function () {
       signature: "",
       publicKey: "",
     };
-    const encryptedBalance = await this.erc20.balanceOf(token.publicKey, token.signature);
+    const encryptedBalance = await this.erc20["balanceOf(bytes32,bytes)"](token.publicKey, token.signature);
     // Decrypt the balance
     const balance = this.instances.alice.decrypt(this.contractAddress, encryptedBalance);
     expect(balance).to.equal(1000);
@@ -39,11 +39,11 @@ describe("EncryptedERC20", function () {
   });
 
   it("should transfer tokens between two users", async function () {
-    const encryptedAmount = this.instances.alice.encrypt32(10000);
+    const encryptedAmount = this.instances.alice.encrypt16(10000);
     const transaction = await createTransaction(this.erc20.mint, encryptedAmount);
     await transaction.wait();
 
-    const encryptedTransferAmount = this.instances.alice.encrypt32(1337);
+    const encryptedTransferAmount = this.instances.alice.encrypt16(1337);
     const tx = await createTransaction(
       this.erc20["transfer(address,bytes)"],
       this.signers.bob.address,
@@ -53,7 +53,10 @@ describe("EncryptedERC20", function () {
 
     const tokenAlice = this.instances.alice.getTokenSignature(this.contractAddress)!;
 
-    const encryptedBalanceAlice = await this.erc20.balanceOf(tokenAlice.publicKey, tokenAlice.signature);
+    const encryptedBalanceAlice = await this.erc20["balanceOf(bytes32,bytes)"](
+      tokenAlice.publicKey,
+      tokenAlice.signature,
+    );
 
     // Decrypt the balance
     const balanceAlice = this.instances.alice.decrypt(this.contractAddress, encryptedBalanceAlice);
@@ -64,11 +67,14 @@ describe("EncryptedERC20", function () {
 
     const tokenBob = this.instances.bob.getTokenSignature(this.contractAddress)!;
 
-    const encryptedBalanceBob = await bobErc20.balanceOf(tokenBob.publicKey, tokenBob.signature);
+    const encryptedBalanceBob = await bobErc20["balanceOf(bytes32,bytes)"](tokenBob.publicKey, tokenBob.signature);
 
     // Decrypt the balance
     const balanceBob = this.instances.bob.decrypt(this.contractAddress, encryptedBalanceBob);
 
     expect(balanceBob).to.equal(1337);
+    // Check new balanceOf(address)
+    const encryptedBalanceBobx = await this.erc20["balanceOf(address)"](this.signers.bob.address);
+    expect(encryptedBalanceBobx).to.not.equal(balanceBob);
   });
 });
